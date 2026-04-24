@@ -1,26 +1,199 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ==========================================================================
+ * InciTrack — Netflix Dark Theme Configuration (Tailwind CSS v4)
+ * ==========================================================================
+ *
+ * Tailwind v4 menggunakan `@theme` directive di CSS, BUKAN tailwind.config.ts.
+ * Semua design tokens didefinisikan di sini.
+ *
+ * Color Palette:
+ *   - Background (#000000) — Pure black, seperti Netflix
+ *   - Surface (#121212) — Sedikit lebih terang untuk cards/panels
+ *   - Primary (#E50914) — Netflix Red, untuk CTA dan highlight
+ *   - Success (#46D369) — Hijau untuk status resolved
+ *   - Warning (#E5A00D) — Kuning untuk status on-the-way
+ * ========================================================================== */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* ---- Netflix Dark Palette ---- */
+  --color-background: #000000;
+  --color-surface: #121212;
+  --color-surface-hover: #1A1A1A;
+  --color-surface-light: #222222;
+
+  /* ---- Brand Colors ---- */
+  --color-primary: #E50914;
+  --color-primary-hover: #F40612;
+  --color-primary-muted: #B20710;
+
+  /* ---- Text Colors ---- */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #B3B3B3;
+  --color-text-muted: #808080;
+  --color-foreground: #FFFFFF;
+
+  /* ---- Status Colors ---- */
+  --color-success: #46D369;
+  --color-warning: #E5A00D;
+  --color-danger: #E50914;
+
+  /* ---- Border & Divider ---- */
+  --color-border: #333333;
+  --color-border-light: #444444;
+
+  /* ---- Fonts ---- */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ==========================================================================
+ * Base Styles
+ * ========================================================================== */
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* ==========================================================================
+ * Custom Animations
+ * ========================================================================== */
+
+/* Fade-in dari bawah — untuk elemen yang muncul saat page load */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Pulse glow — untuk GPS loading indicator */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(229, 9, 20, 0);
+  }
+}
+
+/* Shimmer — untuk loading skeleton */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Spin — untuk loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+ * Utility Classes
+ * ========================================================================== */
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-hover) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Animation delay helpers — untuk staggered fade-in */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* ==========================================================================
+ * Glassmorphism preset — untuk navbar dan overlay
+ * ========================================================================== */
+
+.glass {
+  background: rgba(18, 18, 18, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================================================
+ * Form Elements — Netflix-style dark inputs
+ * ========================================================================== */
+
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-foreground);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+ * Scrollbar — Minimalist dark scrollbar
+ * ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
 }
