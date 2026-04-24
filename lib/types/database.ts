@@ -26,15 +26,28 @@ export type IncidentStatus =
   | 'on-the-way'  // Petugas menuju lokasi
   | 'resolved';   // Selesai ditangani
 
-/** Status ketersediaan petugas */
-export type OfficerStatus =
-  | 'available'   // Siap ditugaskan
-  | 'on-duty'     // Sedang bertugas
-  | 'off-duty';   // Tidak bertugas
+/**
+ * Status petugas di lapangan
+ */
+export type OfficerStatus = 'available' | 'on_job' | 'off_duty';
+
+/**
+ * Role Pengguna (Admin / Officer)
+ */
+export type UserRole = 'admin' | 'officer';
 
 // ============================================================
 // Table Row Types
 // ============================================================
+
+/** Representasi satu baris di tabel `profiles` */
+export interface Profile {
+  id: string;
+  role: UserRole;
+  name: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 /** Representasi satu baris di tabel `incidents` */
 export interface Incident {

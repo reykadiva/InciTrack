@@ -6,45 +6,61 @@
  *   - Server Components
  *   - Server Actions
  *
- * Menggunakan `service_role` key yang BYPASS semua RLS policies.
- * Ini memberikan full admin access ke database.
- *
- * ⚠️ KEAMANAN: JANGAN pernah expose client ini ke browser.
- *    File ini tidak boleh di-import dari komponen "use client".
+ * Diperbarui ke pola @supabase/ssr untuk dukungan cookie/session middleware!
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 /**
- * Membuat Supabase client baru untuk server-side operations.
- *
- * Berbeda dengan browser client yang singleton, server client
- * dibuat per-request untuk menghindari state leaking antar request.
- * (Penting di serverless environment seperti Vercel)
- *
- * @throws Error jika environment variables belum diset
+ * Client standar menggunakan ANON KEY. Membawa informasi session cookie 
+ * milik pengguna secara default, sehingga RLS Supabase berlaku.
  */
-export function createServerSupabaseClient(): SupabaseClient {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies();
 
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error(
-      'Missing server-side Supabase environment variables.\n' +
-      'Pastikan NEXT_PUBLIC_SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY ' +
-      'sudah diset di file .env.local.\n' +
-      'Lihat .env.local.example untuk contoh.'
-    );
-  }
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+            // Error diabaikan karena saat dipanggil di Server Component, Next.js tidak bisa set cookie
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: '', ...options });
+          } catch (error) {
+            // Sama dengan catch atas
+          }
+        },
+      },
+    }
+  );
+}
 
-  // Buat instance baru setiap call (tidak singleton)
-  // karena di server setiap request harus isolated
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      // Nonaktifkan auto-refresh dan session persistence
-      // karena ini server-side, bukan browser
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+/**
+ * Client KHUSUS menggunakan SERVICE ROLE KEY.
+ * - Digunakan untuk Bypass RLS (seperti menyimpan URL storage, cron job, dll).
+ * - JANGAN pernah gunakan ini jika berurusan dengan otorisasi user biasa!
+ */
+export async function createServiceRoleClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        get() { return undefined; },
+        set() {},
+        remove() {},
+      },
+    }
+  );
 }
