@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     // ============================================================
     // Step 3: Insert ke Database via Supabase
     // ============================================================
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
 
     // Menggunakan RPC function `insert_incident` yang sudah kita buat.
     // Function ini otomatis membuat GEOGRAPHY point dari lat/lng.

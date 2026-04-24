@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const fileName = `incident_${uuidv4()}.${extension}`;
 
     // 4. Inisiasi Storage
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     
     const { data, error } = await supabase.storage
       .from('incident-images')
